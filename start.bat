@@ -58,9 +58,14 @@ echo.
 echo ========================================
 echo    Сайт запущен!
 echo    http://localhost:8000
+echo    Открываю браузер...
 echo    Нажмите Ctrl+C для остановки
 echo ========================================
 echo.
+
+REM Открыть браузер через 3 секунды
+timeout /t 3 /nobreak >nul
+start http://localhost:8000
 
 python manage.py runserver 8000
 
