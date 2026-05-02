@@ -231,4 +231,22 @@ bandit -r bakery/
 
 ---
 **Последнее обновление**: 2026-05-02
-**Версия проекта**: 1.0
+**Версия проекта**: 1.1
+
+## 🚀 Быстрый запуск
+
+Для автоматической установки и запуска используйте:
+
+```bash
+# Windows
+start.bat
+
+# Или вручную
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver 8000
+```
+
+Полная документация: [README.md](README.md)
