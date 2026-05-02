@@ -39,6 +39,3 @@ htmlcov/
 .coverage
 .pytest_cache/
 
-# Scripts
-start.bat.bak
-create_superuser.bat.bak
