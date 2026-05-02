@@ -27,6 +27,14 @@ if not exist "venv\" (
 )
 echo.
 
+REM Удаление старой базы данных (если есть)
+if exist "db.sqlite3" (
+    echo Удаляю старую базу данных...
+    del /f db.sqlite3
+    echo База данных удалена.
+)
+echo.
+
 REM Активация виртуального окружения
 echo [3/5] Установка зависимостей...
 call venv\Scripts\activate.bat
@@ -34,7 +42,6 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 echo.
 
-REM Применение миграций
 echo [4/5] Создание миграций базы данных...
 python manage.py makemigrations
 if %errorlevel% neq 0 (
@@ -56,8 +63,9 @@ echo [4/5] Миграции применены успешно!
 echo.
 
 REM Создание суперпользователя если не существует
-echo Проверка администратора...
+echo Создаю администратора (если нет)...
 python manage.py shell -c "from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@zhitnitsa.ru', 'admin123')" 2>nul
+echo Администратор создан! (admin/admin123)
 echo.
 
 REM Создание директорий для медиа и статики
