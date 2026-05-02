@@ -1,0 +1,38 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}О нас — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">{{ about_page.title|default:"О нас" }}</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="about-content">
+            {{ about_page.content|linebreaks }}
+        </div>
+        
+        {% if stores %}
+            <h2 style="text-align:center;margin:60px 0 32px;font-size:2rem;color:var(--brown-dark);font-weight:800;">🏪 Наши пекарни</h2>
+            <div class="features">
+                {% for store in stores %}
+                    <div class="feature-card">
+                        {% if store.image %}
+                            <img src="{{ store.image.url }}" alt="{{ store.name }}" style="width:100%;height:180px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:16px;">
+                        {% else %}
+                            <div style="width:100%;height:180px;background:var(--wheat);border-radius:var(--radius-sm);margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:4rem;">🏪</div>
+                        {% endif %}
+                        <h3 style="font-size:1.2rem;font-weight:700;color:var(--brown-dark);margin-bottom:12px;">{{ store.name }}</h3>
+                        <p style="color:var(--text-light);margin-bottom:8px;">📍 {{ store.address }}</p>
+                        {% if store.phone %}<p style="color:var(--text-light);margin-bottom:8px;">📞 {{ store.phone }}</p>{% endif %}
+                        {% if store.working_hours %}<p style="color:var(--text-light);">🕒 {{ store.working_hours }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

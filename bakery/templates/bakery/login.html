@@ -1,0 +1,132 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Вход — Житница{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const showRegister = document.getElementById('show-register');
+    const showLogin = document.getElementById('show-login');
+    const loginContainer = document.getElementById('login-form-container');
+    const registerContainer = document.getElementById('register-form-container');
+
+    if (showRegister && loginContainer && registerContainer) {
+        showRegister.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginContainer.style.display = 'none';
+            registerContainer.classList.add('active');
+        });
+    }
+
+    if (showLogin && loginContainer && registerContainer) {
+        showLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            registerContainer.classList.remove('active');
+            loginContainer.style.display = 'block';
+        });
+    }
+
+    // Переключатель видимости пароля
+    document.querySelectorAll('.toggle-password').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var targetId = this.getAttribute('data-target');
+            var input = document.getElementById(targetId);
+            if (input && input.type === 'password') {
+                input.type = 'text';
+                this.textContent = '🙈';
+            } else if (input) {
+                input.type = 'password';
+                this.textContent = '👁️';
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="section login-page">
+    <div class="login-form">
+        <!-- Форма входа -->
+        <div id="login-form-container">
+            <h1 class="login-form__title">Вход</h1>
+            {% if error %}
+                <div class="login-error">{{ error }}</div>
+            {% endif %}
+            <form method="post" action="{% url 'login' %}" id="login-form">
+                {% csrf_token %}
+                <input type="hidden" name="register" value="0">
+                <div class="form-group">
+                    <label for="login-username">Логин</label>
+                    <input type="text" id="login-username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Пароль</label>
+                    <div style="position:relative;">
+                        <input type="password" id="login-password" name="password" required autocomplete="current-password" style="padding-right:45px;">
+                        <button type="button" class="toggle-password" data-target="login-password" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:0.6; padding:0 5px;">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn--primary" style="width:100%;">Войти</button>
+            </form>
+            <p style="text-align:center;margin-top:12px;">
+                <a href="{% url 'password_reset_request' %}" style="color:var(--accent);font-size:0.9rem;">Забыли пароль?</a>
+            </p>
+            <p class="registration-toggle">
+                <a href="#" id="show-register">Нет аккаунта? Зарегистрироваться</a>
+            </p>
+        </div>
+
+        <!-- Форма регистрации -->
+        <div id="register-form-container" class="registration-form">
+            <h1 class="login-form__title">Регистрация покупателя</h1>
+            <form method="post" action="{% url 'login' %}" id="register-form">
+                {% csrf_token %}
+                <input type="hidden" name="register" value="1">
+                <div class="form-group">
+                    <label for="reg-firstname">Имя *</label>
+                    <input type="text" id="reg-firstname" name="first_name" required placeholder="Иван">
+                </div>
+                <div class="form-group">
+                    <label for="reg-lastname">Фамилия *</label>
+                    <input type="text" id="reg-lastname" name="last_name" required placeholder="Иванов">
+                </div>
+                <div class="form-group">
+                    <label for="reg-username">Логин *</label>
+                    <input type="text" id="reg-username" name="username" required placeholder="ivan123">
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email *</label>
+                    <input type="email" id="reg-email" name="email" required placeholder="example@mail.ru">
+                </div>
+                <div class="form-group">
+                    <label for="reg-phone">Номер телефона</label>
+                    <input type="tel" id="reg-phone" name="phone" placeholder="+7 (999) 123-45-67">
+                </div>
+                <div class="form-group">
+                    <label for="reg-birthdate">Дата рождения</label>
+                    <input type="date" id="reg-birthdate" name="birth_date">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Пароль *</label>
+                    <div style="position:relative;">
+                        <input type="password" id="reg-password" name="password" required minlength="6" style="padding-right:45px;">
+                        <button type="button" class="toggle-password" data-target="reg-password" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:0.6; padding:0 5px;">👁️</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password2">Повторите пароль *</label>
+                    <div style="position:relative;">
+                        <input type="password" id="reg-password2" name="password2" required minlength="6" style="padding-right:45px;">
+                        <button type="button" class="toggle-password" data-target="reg-password2" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.2rem;cursor:pointer;opacity:0.6; padding:0 5px;">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn--accent" style="width:100%;">Зарегистрироваться</button>
+            </form>
+            <p class="registration-toggle">
+                <a href="#" id="show-login">Уже есть аккаунт? Войти</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

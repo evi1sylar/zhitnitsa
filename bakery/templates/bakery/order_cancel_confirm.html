@@ -1,0 +1,25 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Отмена заказа — Житница{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="confirm-delete">
+            <h2 class="confirm-delete__title">🛒 Отменить заказ №{{ order.pk }}?</h2>
+            <p class="confirm-delete__text">
+                Вы уверены, что хотите отменить этот заказ?<br>
+                {% if order.store %}Точка самовывоза: {{ order.store.name }} — {{ order.store.address }}<br>{% endif %}
+                Итого: <strong>{{ order.total }} ₽</strong>
+            </p>
+            <div class="confirm-delete__actions">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--danger">Да, отменить</button>
+                </form>
+                <a href="javascript:history.back()" class="btn btn--outline">Отмена</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

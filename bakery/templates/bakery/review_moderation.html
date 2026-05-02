@@ -1,0 +1,91 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Модерация отзывов — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">Модерация отзывов</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="admin-panel">
+            <a href="javascript:history.back()" class="btn btn--outline">← Назад</a>
+            <p>На модерации: <strong>{{ pending|length }}</strong></p>
+        </div>
+
+        {% if pending %}
+            <h3 style="margin-bottom:16px;color:var(--brown-dark);">⏳ Ожидают проверки:</h3>
+            <div class="reviews-list" style="margin-bottom:32px;">
+                {% for review in pending %}
+                    <div class="review-card">
+                        <div class="review-card__header">
+                            <span class="review-card__author">{{ review.author }}</span>
+                            <span class="review-card__stars">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                        </div>
+                        <p class="review-card__text">{{ review.text }}</p>
+                        <p style="color:#8b8b8b;font-size:0.8rem;margin-top:8px;">{{ review.created_at|date:"d.m.Y H:i" }}</p>
+                        <div style="margin-top:12px;display:flex;gap:8px;">
+                            <form method="post" action="{% url 'review_moderate' review.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn--primary btn--sm">✓ Одобрить</button>
+                            </form>
+                            <form method="post" action="{% url 'review_moderate' review.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="btn btn--outline btn--sm" style="color:#f39c12;border-color:#f39c12;">✗ Отклонить</button>
+                            </form>
+                            <form method="post" action="{% url 'review_moderate' review.pk %}" style="display:inline;" onsubmit="return confirm('Удалить отзыв?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="btn btn--danger btn--sm">🗑️</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state__icon">✅</div>
+                <p class="empty-state__text">Все отзывы проверены!</p>
+            </div>
+        {% endif %}
+
+        <h3 style="margin:32px 0 16px;color:var(--brown-dark);">📋 Все отзывы:</h3>
+        <div class="reviews-list">
+            {% for review in all %}
+                <div class="review-card" style="opacity:{% if review.moderation_status != 'approved' %}0.7{% endif %};">
+                    <div class="review-card__header">
+                        <span class="review-card__author">{{ review.author }}</span>
+                        <span class="order-status order-status--{{ review.moderation_status }}">{{ review.get_moderation_status_display }}</span>
+                    </div>
+                    <p class="review-card__text">{{ review.text }}</p>
+                    <p style="color:#8b8b8b;font-size:0.8rem;margin-top:8px;">{{ review.created_at|date:"d.m.Y H:i" }}</p>
+                    <div style="margin-top:12px;display:flex;gap:8px;">
+                        {% if review.moderation_status == 'pending' %}
+                        <form method="post" action="{% url 'review_moderate' review.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn--primary btn--sm">✓ Одобрить</button>
+                        </form>
+                        <form method="post" action="{% url 'review_moderate' review.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn--outline btn--sm" style="color:#f39c12;border-color:#f39c12;">✗ Отклонить</button>
+                        </form>
+                        {% endif %}
+                        <form method="post" action="{% url 'review_moderate' review.pk %}" style="display:inline;" onsubmit="return confirm('Удалить отзыв навсегда?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit" class="btn btn--danger btn--sm">🗑️ Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

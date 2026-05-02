@@ -1,0 +1,24 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Удаление пользователя — Житница{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="confirm-delete">
+            <h2 class="confirm-delete__title">🗑️ Удалить пользователя?</h2>
+            <p class="confirm-delete__text">
+                <strong>{{ user.get_full_name|default:user.username }}</strong> ({{ user.email }})<br>
+                Это действие нельзя отменить. Все данные пользователя будут удалены безвозвратно.
+            </p>
+            <div class="confirm-delete__actions">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--danger">Да, удалить</button>
+                </form>
+                <a href="javascript:history.back()" class="btn btn--outline">Отмена</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% load static %}<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Житница — сеть пекарен со свежей выпечкой каждый день">
+    
+    <!-- Security Headers via Meta -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <title>{% block title %}Житница — сеть пекарен{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lobster&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥖</text></svg>">
+</head>
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <a href="{% url 'home' %}" class="logo">
+                <span class="logo__icon">🥖</span>
+                <span class="logo__text">Житница</span>
+            </a>
+            <nav class="nav">
+                <a href="{% url 'home' %}" class="nav__link">Главная</a>
+                <a href="{% url 'about' %}" class="nav__link">О нас</a>
+                <a href="{% url 'products' %}" class="nav__link">Продукция</a>
+                <a href="{% url 'reviews' %}" class="nav__link">Отзывы</a>
+                <a href="{% url 'order_list' %}" class="nav__link">Заказы</a>
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        <div class="nav__dropdown">
+                            <button class="nav__link nav__link--admin nav__dropdown-toggle" type="button">
+                                Изменить ▾
+                            </button>
+                            <div class="nav__dropdown-menu">
+                                <a href="{% url 'edit_products' %}">🥖 Продукция</a>
+                                <a href="{% url 'store_list' %}">🏪 Пекарни</a>
+                                <a href="{% url 'user_list' %}">👥 Пользователи</a>
+                                <a href="{% url 'review_moderation' %}">💬 Отзывы</a>
+                                <a href="{% url 'about_edit_new' %}">📄 О нас</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </nav>
+            <div class="header__auth">
+                {% if user.is_authenticated %}
+                    <span class="header__user">{{ user.get_full_name|default:user.username }}</span>
+                    <a href="{% url 'logout' %}" class="btn btn--small btn--outline">Выйти</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn--small btn--outline">Вход</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="messages__item messages__item--{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <p class="footer__copy">&copy; {% now "Y" %} Житница. Свежая выпечка каждый день.</p>
+            <p class="footer__contact">📍 ул. Хлебная, 1 | 📞 +7 (999) 123-45-67</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}{{ action }} продукт — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">{{ action }} продукт</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="review-form" style="max-width:600px;margin:0 auto;">
+            <form method="post" enctype="multipart/form-data" id="product-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Название</label>
+                    <input type="text" id="name" name="name" required
+                           value="{{ product.name|default:'' }}"
+                           placeholder="Хлеб деревенский">
+                </div>
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <textarea id="description" name="description" required
+                              placeholder="Ароматный ржаной хлеб на закваске...">{{ product.description|default:'' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="ingredients">🧑‍🍳 Состав</label>
+                    <input type="text" id="ingredients" name="ingredients"
+                           value="{{ product.ingredients|default:'' }}"
+                           placeholder="Слоёное тесто, нежный сыр, куриная грудка">
+                    <small style="color:#8b8b8b;">Укажите ингредиенты через запятую</small>
+                </div>
+                <div class="form-group">
+                    <label for="product_tags">🥖 Тип продукции</label>
+                    <input type="text" id="product_tags" name="product_tags"
+                           value="{{ product.product_tags|default:'' }}"
+                           placeholder="хлеб, выпечка, фастфуд, десерты">
+                    <small style="color:#8b8b8b;">Через запятую: хлеб, выпечка, фастфуд и т.д.</small>
+                </div>
+                <div class="form-group">
+                    <label for="cuisine_tags">🍽️ Тип кухни</label>
+                    <input type="text" id="cuisine_tags" name="cuisine_tags"
+                           value="{{ product.cuisine_tags|default:'' }}"
+                           placeholder="русская, кавказская, американская">
+                    <small style="color:#8b8b8b;">Через запятую: русская, кавказская, европейская и т.д.</small>
+                </div>
+                <div class="form-group">
+                    <label for="price">Цена (₽)</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0"
+                           value="{{ price_str }}">
+                </div>
+                <div class="form-group">
+                    <label for="image">Фото</label>
+                    {% if product.image %}
+                        <p style="margin-bottom:8px;">
+                            <img src="{{ product.image.url }}" alt="" style="max-height:120px;border-radius:8px;">
+                        </p>
+                    {% endif %}
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn--primary" id="save-btn">💾 Сохранить</button>
+                <a href="javascript:history.back()" class="btn btn--outline">← Назад</a>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.getElementById('product-form').addEventListener('submit', function() {
+    const btn = document.getElementById('save-btn');
+    btn.textContent = '⏳ Сохранение...';
+    btn.disabled = true;
+});
+</script>
+{% endblock %}
+{% endblock %}

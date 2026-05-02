@@ -1,0 +1,52 @@
+{% extends 'bakery/base.html' %}
+{% load static %}
+
+{% block title %}Житница — свежая выпечка каждый день{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1 class="hero__title">Житница</h1>
+        <p class="hero__subtitle">Свежая выпечка с любовью • Традиционные рецепты • Натуральные ингредиенты</p>
+        <div class="hero__buttons">
+            <a href="{% url 'about' %}" class="btn btn--primary">О нас</a>
+            <a href="{% url 'products' %}" class="btn btn--accent">Продукция</a>
+            <a href="{% url 'reviews' %}" class="btn btn--outline">Отзывы</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'order_create' %}" class="btn btn--primary">Заказ</a>
+                {% if user.is_staff %}
+                    <a href="{% url 'edit_products' %}" class="btn btn--outline" style="border-color:#e67e22;color:#e67e22;">Изменить</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <h2 class="section__title">Почему выбирают нас</h2>
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-card__icon">🌾</div>
+                <h3 class="feature-card__title">Натуральные ингредиенты</h3>
+                <p class="feature-card__text">Только отборная мука, свежие яйца и настоящее сливочное масло. Никаких консервантов.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">👨‍🍳</div>
+                <h3 class="feature-card__title">Ручная работа</h3>
+                <p class="feature-card__text">Каждый батон, булочка и пирог сделаны руками наших мастеров по традиционным рецептам.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">🕐</div>
+                <h3 class="feature-card__title">Всегда свежее</h3>
+                <p class="feature-card__text">Выпекаем несколько раз в день. На прилавках — только сегодняшняя продукция.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icon">❤️</div>
+                <h3 class="feature-card__title">С любовью к традициям</h3>
+                <p class="feature-card__text">Бережно храним рецепты, передаваемые из поколения в поколение.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

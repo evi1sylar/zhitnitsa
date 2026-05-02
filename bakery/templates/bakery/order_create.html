@@ -1,0 +1,107 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Новый заказ — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">Новый заказ</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="review-form" style="max-width:700px;margin:0 auto;">
+            <form method="post" id="order-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label>Выберите точку самовывоза</label>
+                    {% if stores %}
+                        <select name="store" required style="width:100%;padding:10px 14px;border:2px solid #e0d5c5;border-radius:var(--radius-sm);font-size:0.95rem;">
+                            <option value="">-- Выберите пекарню --</option>
+                            {% for store in stores %}
+                                <option value="{{ store.pk }}" {% if preselected_store and preselected_store.pk == store.pk %}selected{% endif %}>{{ store.name }} — {{ store.address }}{% if store.working_hours %} ({{ store.working_hours }}){% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <p style="color:var(--text-light);">Точки самовывоза пока не настроены.</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Выберите продукцию</label>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        {% for product in products %}
+                            <div class="order-product-row" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f0e6d3;">
+                                <input type="checkbox" name="product_id" value="{{ product.pk }}" id="prod{{ product.pk }}"
+                                       class="order-checkbox" data-price="{{ product.price }}"
+                                       {% if preselected_product and preselected_product.pk == product.pk %}checked{% endif %}
+                                       style="width:18px;height:18px;">
+                                <label for="prod{{ product.pk }}" style="flex:1;cursor:pointer;font-weight:500;">
+                                    {{ product.name }}
+                                    {% if product.price %}<span style="color:var(--accent);">— {{ product.price }} ₽</span>{% endif %}
+                                </label>
+                                <input type="number" name="quantity" value="1" min="1" max="20"
+                                       class="order-qty" style="width:60px;text-align:center;"
+                                       {% if not preselected_product or preselected_product.pk != product.pk %}disabled{% endif %}>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div style="text-align:right;font-size:1.3rem;font-weight:700;color:var(--accent);margin:16px 0;" id="order-total">
+                    Итого: 0 ₽
+                </div>
+                <div class="form-group">
+                    <label for="comment">Комментарий к заказу</label>
+                    <textarea id="comment" name="comment" placeholder="Особые пожелания..."></textarea>
+                </div>
+                <button type="submit" class="btn btn--accent" id="submit-order" {% if not stores %}disabled{% endif %}>🛒 Оформить заказ</button>
+                <a href="{% url 'order_list' %}" class="btn btn--outline">Мои заказы</a>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    const totalEl = document.getElementById('order-total');
+    const submitBtn = document.getElementById('submit-order');
+
+    function recalc() {
+        let total = 0;
+        let hasSelection = false;
+        checkboxes.forEach(cb => {
+            const row = cb.closest('.order-product-row');
+            const qtyInput = row.querySelector('.order-qty');
+            if (cb.checked) {
+                hasSelection = true;
+                qtyInput.disabled = false;
+                const price = parseFloat(cb.dataset.price) || 0;
+                const qty = parseInt(qtyInput.value) || 1;
+                total += price * qty;
+            } else {
+                qtyInput.disabled = true;
+                qtyInput.value = 1;
+            }
+        });
+        totalEl.textContent = 'Итого: ' + total.toFixed(2) + ' ₽';
+        submitBtn.disabled = !hasSelection;
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', recalc));
+    document.querySelectorAll('.order-qty').forEach(qty => {
+        qty.addEventListener('input', recalc);
+    });
+
+    // Прогресс на кнопке
+    document.getElementById('order-form').addEventListener('submit', function() {
+        submitBtn.textContent = '⏳ Оформление...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

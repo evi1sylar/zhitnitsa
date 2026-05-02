@@ -1,0 +1,21 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Удаление — {{ store.name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="confirm-delete">
+            <h2 class="confirm-delete__title">🗑️ Удалить «{{ store.name }}»?</h2>
+            <p class="confirm-delete__text">Это действие нельзя отменить. Пекарня будет удалена безвозвратно.</p>
+            <div class="confirm-delete__actions">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn--danger">Да, удалить</button>
+                </form>
+                <a href="{% url 'store_list' %}" class="btn btn--outline">Отмена</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

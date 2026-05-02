@@ -1,0 +1,44 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}{{ action }} страницу «О нас» — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">{{ action }} страницу «О нас»</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="review-form" style="max-width:600px;margin:0 auto;">
+            <form method="post" id="about-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="title">Заголовок</label>
+                    <input type="text" id="title" name="title" required
+                           value="{{ about_page.title|default:'' }}"
+                           placeholder="О нас">
+                </div>
+                <div class="form-group">
+                    <label for="content">Содержание</label>
+                    <textarea id="content" name="content" required rows="12"
+                              placeholder="Расскажите о пекарне...">{{ about_page.content|default:'' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn--primary">💾 Сохранить</button>
+                <a href="javascript:history.back()" class="btn btn--outline">← Назад</a>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.getElementById('about-form').addEventListener('submit', function() {
+    const btn = this.querySelector('button[type="submit"]');
+    btn.textContent = '⏳ Сохранение...';
+    btn.disabled = true;
+});
+</script>
+{% endblock %}
+{% endblock %}

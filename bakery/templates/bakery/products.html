@@ -1,0 +1,90 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Продукция — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">Наша продукция</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <!-- Фильтры -->
+        <div class="filters" style="background:var(--white);padding:20px;border-radius:var(--radius);margin-bottom:24px;box-shadow:var(--shadow);">
+            <form method="get" action="{% url 'products' %}" style="display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:end;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="product_tag" style="font-weight:600;margin-bottom:6px;display:block;">Тип продукции</label>
+                    <select name="product_tag" id="product_tag" style="width:100%;padding:10px 14px;border:2px solid #e0d5c5;border-radius:var(--radius-sm);font-size:0.95rem;">
+                        <option value="">Все типы</option>
+                        {% for tag in all_product_tags %}
+                            <option value="{{ tag }}" {% if product_tag == tag %}selected{% endif %}>{{ tag|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="cuisine_tag" style="font-weight:600;margin-bottom:6px;display:block;">Тип кухни</label>
+                    <select name="cuisine_tag" id="cuisine_tag" style="width:100%;padding:10px 14px;border:2px solid #e0d5c5;border-radius:var(--radius-sm);font-size:0.95rem;">
+                        <option value="">Вся кухня</option>
+                        {% for tag in all_cuisine_tags %}
+                            <option value="{{ tag }}" {% if cuisine_tag == tag %}selected{% endif %}>{{ tag|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn--primary" style="height:42px;">🔍 Фильтровать</button>
+                    <a href="{% url 'products' %}" class="btn btn--outline" style="height:42px;">Сброс</a>
+                </div>
+            </form>
+        </div>
+        
+        {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                    <div class="product-card">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-card__image">
+                        {% else %}
+                            <div class="product-card__image" style="display:flex;align-items:center;justify-content:center;font-size:4rem;">🥖</div>
+                        {% endif %}
+                        <div class="product-card__body">
+                            <h3 class="product-card__title">{{ product.name }}</h3>
+                            <p class="product-card__desc">{{ product.description }}</p>
+                            {% if product.product_tags_list or product.cuisine_tags_list %}
+                                <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;">
+                                    {% for tag in product.product_tags_list %}
+                                        <span class="product-tag" style="background:var(--wheat);color:var(--brown-dark);padding:4px 10px;border-radius:12px;font-size:0.8rem;font-weight:600;">🥖 {{ tag|truncatechars:15 }}</span>
+                                    {% endfor %}
+                                    {% for tag in product.cuisine_tags_list %}
+                                        <span class="product-tag" style="background:var(--wheat);color:var(--brown-dark);padding:4px 10px;border-radius:12px;font-size:0.8rem;font-weight:600;">🍽️ {{ tag|truncatechars:15 }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if product.ingredients %}
+                                <div class="product-card__ingredients">
+                                    <span class="product-card__ingredients-label">🧑‍🍳 Состав:</span>
+                                    <span class="product-card__ingredients-text">{{ product.ingredients }}</span>
+                                </div>
+                            {% endif %}
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+                                <p class="product-card__price" style="margin:0;font-size:1.3rem;font-weight:700;color:var(--accent);">{{ product.price }} ₽</p>
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'order_create' %}?product={{ product.pk }}" class="btn btn--primary btn--sm">🛒</a>
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn--outline btn--sm" style="border-color:var(--brown);color:var(--brown);">🔒</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state__icon">🥐</div>
+                <p class="empty-state__text">Продукция скоро появится. Заходите позже!</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

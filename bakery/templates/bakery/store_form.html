@@ -1,0 +1,67 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}{{ action }} пекарню — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">{{ action }} пекарню</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="review-form" style="max-width:600px;margin:0 auto;">
+            <form method="post" enctype="multipart/form-data" id="store-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Название</label>
+                    <input type="text" id="name" name="name" required
+                           value="{{ store.name|default:'' }}"
+                           placeholder="Центральная пекарня">
+                </div>
+                <div class="form-group">
+                    <label for="address">Адрес</label>
+                    <input type="text" id="address" name="address" required
+                           value="{{ store.address|default:'' }}"
+                           placeholder="ул. Хлебная, 1">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" name="phone"
+                           value="{{ store.phone|default:'' }}"
+                           placeholder="+7 (999) 123-45-67">
+                </div>
+                <div class="form-group">
+                    <label for="working_hours">Часы работы</label>
+                    <input type="text" id="working_hours" name="working_hours"
+                           value="{{ store.working_hours|default:'' }}"
+                           placeholder="Пн-Вс: 08:00-20:00">
+                </div>
+                <div class="form-group">
+                    <label for="image">Фото пекарни</label>
+                    {% if store.image %}
+                        <p style="margin-bottom:8px;">
+                            <img src="{{ store.image.url }}" alt="" style="max-height:150px;border-radius:var(--radius-sm);">
+                        </p>
+                    {% endif %}
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                        <input type="checkbox" name="is_active" {% if store and store.is_active or not store %}checked{% endif %} style="width:20px;height:20px;">
+                        <span>Активна (доступна для выбора при заказе)</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="order">Порядок отображения</label>
+                    <input type="number" id="order" name="order" min="0"
+                           value="{{ store.display_order|default:'0' }}">
+                </div>
+                <button type="submit" class="btn btn--primary">💾 Сохранить</button>
+                <a href="javascript:history.back()" class="btn btn--outline">← Назад</a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

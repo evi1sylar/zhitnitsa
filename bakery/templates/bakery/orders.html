@@ -1,0 +1,101 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Мои заказы — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">{% if is_staff %}Все заказы{% else %}Мои заказы{% endif %}</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if is_authenticated %}
+        <div style="text-align:center;margin-bottom:24px;">
+            <a href="{% url 'order_create' %}" class="btn btn--accent">+ Новый заказ</a>
+        </div>
+        {% else %}
+        <div style="text-align:center;margin-bottom:24px;">
+            <p style="color:var(--text-light);margin-bottom:12px;">Для оформления заказа необходимо <a href="{% url 'login' %}">войти</a> или <a href="{% url 'login' %}">зарегистрироваться</a>.</p>
+        </div>
+        {% endif %}
+
+        {% if orders %}
+            <div class="orders-list" style="max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">
+                {% for order in orders %}
+                    <div class="review-card">
+                        <div class="review-card__header">
+                            <span class="review-card__author">Заказ №{{ order.pk }} — {{ order.created_at|date:"d.m.Y H:i" }}</span>
+                            {% if order.status == 'cancelled' and order.cancelled_by_customer and not is_staff %}
+                                <span class="order-status order-status--cancelled">Отменён</span>
+                            {% else %}
+                                <span class="order-status order-status--{{ order.status }}">{% if order.cancelled_by_customer and is_staff %}Отменён заказчиком{% else %}{{ order.get_status_display }}{% endif %}</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if order.store %}
+                        <p style="color:var(--text-light);font-size:0.9rem;margin:8px 0;">🏪 <strong>Точка:</strong> {{ order.store.name }} — {{ order.store.address }}</p>
+                        {% endif %}
+                        
+                        <table style="width:100%;margin:12px 0;border-collapse:collapse;">
+                            <thead>
+                                <tr style="border-bottom:2px solid #e0d5c5;">
+                                    <th style="text-align:left;padding:8px 0;">Продукт</th>
+                                    <th style="text-align:center;padding:8px 0;">Кол-во</th>
+                                    <th style="text-align:right;padding:8px 0;">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                    <tr style="border-bottom:1px solid #f0e6d3;">
+                                        <td style="padding:6px 0;">{{ item.product.name }}</td>
+                                        <td style="text-align:center;padding:6px 0;">{{ item.quantity }}</td>
+                                        <td style="text-align:right;padding:6px 0;font-weight:600;">{{ item.subtotal }} ₽</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div style="text-align:right;font-size:1.2rem;font-weight:700;color:var(--accent);">
+                            Итого: {{ order.total }} ₽
+                        </div>
+                        {% if order.comment %}
+                            <p style="color:var(--text-light);font-size:0.9rem;margin-top:8px;">💬 {{ order.comment }}</p>
+                        {% endif %}
+                        
+                        {% if is_staff %}
+                        <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0e6d3;">
+                            <form method="post" action="{% url 'order_update_status' order.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <select name="status" onchange="this.form.submit()" style="padding:6px 12px;border-radius:8px;border:2px solid #e0d5c5;font-weight:600;">
+                                    {% for status_code, status_name in order.STATUS_CHOICES %}
+                                        <option value="{{ status_code }}" {% if order.status == status_code %}selected{% endif %}>{{ status_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                        {% else %}
+                            {% if order.status == 'new' and not order.cancelled_by_customer %}
+                            <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0e6d3;">
+                                <a href="{% url 'order_cancel' order.pk %}" class="btn btn--outline btn--sm" style="color:#e74c3c;border-color:#e74c3c;">Отменить заказ</a>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state__icon">🛒</div>
+                <p class="empty-state__text">
+                    {% if is_authenticated %}
+                        {% if is_staff %}Заказов пока нет.{% else %}У вас пока нет заказов. Сделайте первый!{% endif %}
+                    {% else %}
+                        Войдите или зарегистрируйтесь, чтобы видеть заказы.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

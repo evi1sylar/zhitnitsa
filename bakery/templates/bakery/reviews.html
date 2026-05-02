@@ -1,0 +1,133 @@
+{% extends 'bakery/base.html' %}
+
+{% block title %}Отзывы — Житница{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-header__title">Отзывы наших гостей</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if user.is_authenticated %}
+            <div class="review-form">
+                <h3 class="review-form__title">Оставьте свой отзыв</h3>
+                <form method="post" action="{% url 'reviews' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="author">Ваше имя</label>
+                        <input type="text" id="author" name="author" required 
+                               value="{{ user.get_full_name|default:user.username }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Оценка <span id="rating-value" style="color:var(--accent);font-weight:600;">5 звезд</span></label>
+                        <div class="rating-stars" style="display:flex;gap:4px;direction:rtl;justify-content:center;">
+                            {% for i in "54321" %}
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" {% if i == '5' %}checked{% endif %} class="rating-input" style="display:none;">
+                                <label for="star{{ i }}" class="star-label" style="cursor:pointer;font-size:2.2rem;color:#ddd;transition:color 0.2s;">★</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="text">Ваш отзыв</label>
+                        <textarea id="text" name="text" required placeholder="Расскажите, что вам понравилось..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn--primary">Отправить отзыв</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="review-form" style="text-align:center;">
+                <h3 class="review-form__title">Хотите оставить отзыв?</h3>
+                <p style="color:var(--text-light);margin-bottom:16px;">Для этого необходимо <a href="{% url 'login' %}">войти в аккаунт</a> или <a href="{% url 'login' %}">зарегистрироваться</a>.</p>
+            </div>
+        {% endif %}
+
+        {% if reviews %}
+            <div class="reviews-list">
+                {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-card__header">
+                            <span class="review-card__author">{{ review.author }}</span>
+                            <span class="review-card__stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                        <p class="review-card__text">{{ review.text }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state__icon">💬</div>
+                <p class="empty-state__text">Пока нет отзывов. Будьте первым!</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% block extra_js %}
+<style>
+.rating-stars .star-label.selected,
+.rating-stars .star-label:hover,
+.rating-stars .star-label:hover ~ .star-label {
+    color: #f39c12 !important;
+}
+</style>
+<script>
+(function() {
+    const ratingInputs = document.querySelectorAll('.rating-input');
+    const stars = document.querySelectorAll('.star-label');
+    const ratingValue = document.getElementById('rating-value');
+
+    function updateStars(selectedValue) {
+        stars.forEach(function(star, index) {
+            const starValue = 6 - index; // 5, 4, 3, 2, 1
+            if (starValue <= selectedValue) {
+                star.classList.add('selected');
+            } else {
+                star.classList.remove('selected');
+            }
+        });
+        
+        const texts = ['0 звезд', '1 звезда', '2 звезды', '3 звезды', '4 звезды', '5 звезд'];
+        if (ratingValue) {
+            ratingValue.textContent = texts[selectedValue] || selectedValue + ' звезд';
+        }
+    }
+
+    // Инициализация
+    const checkedStar = document.querySelector('.rating-input:checked');
+    if (checkedStar) {
+        updateStars(parseInt(checkedStar.value));
+    }
+
+    // Обработка клика
+    ratingInputs.forEach(function(input) {
+        input.addEventListener('change', function() {
+            updateStars(parseInt(this.value));
+        });
+    });
+
+    // Обработка наведения
+    stars.forEach(function(star, index) {
+        star.addEventListener('mouseenter', function() {
+            const value = 6 - index;
+            updateStars(value);
+        });
+    });
+
+    // Сброс при уходе мыши
+    document.querySelector('.rating-stars').addEventListener('mouseleave', function() {
+        const checkedStar = document.querySelector('.rating-input:checked');
+        if (checkedStar) {
+            updateStars(parseInt(checkedStar.value));
+        }
+    });
+})();
+</script>
+{% endblock %}
+{% endblock %}
