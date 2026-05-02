@@ -129,6 +129,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Путь к статическим файлам в режиме разработки
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Auth settings
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 
