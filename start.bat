@@ -30,20 +30,34 @@ echo.
 REM Активация виртуального окружения
 echo [3/5] Установка зависимостей...
 call venv\Scripts\activate.bat
-python -m pip install --upgrade pip --quiet
-pip install -r requirements.txt --quiet
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 echo.
 
 REM Применение миграций
-echo [4/5] Применение миграций базы данных...
+echo [4/5] Создание миграций базы данных...
 python manage.py makemigrations
-python manage.py migrate --noinput
+if %errorlevel% neq 0 (
+    echo [ERROR] Ошибка при создании миграций!
+    pause
+    exit /b 1
+)
+echo.
+
+echo [4/5] Применение миграций базы данных...
+python manage.py migrate
 if %errorlevel% neq 0 (
     echo [ERROR] Ошибка при применении миграций!
+    echo Проверьте вывод выше для деталей.
     pause
     exit /b 1
 )
 echo [4/5] Миграции применены успешно!
+echo.
+
+REM Создание суперпользователя если не существует
+echo Проверка администратора...
+python manage.py shell -c "from django.contrib.auth.models import User; User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@zhitnitsa.ru', 'admin123')" 2>nul
 echo.
 
 REM Создание директорий для медиа и статики
