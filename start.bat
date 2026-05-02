@@ -36,10 +36,14 @@ echo.
 
 REM Применение миграций
 echo [4/5] Применение миграций базы данных...
+python manage.py makemigrations
 python manage.py migrate --noinput
 if %errorlevel% neq 0 (
-    echo [WARNING] Миграции не выполнены, но запуск продолжится
+    echo [ERROR] Ошибка при применении миграций!
+    pause
+    exit /b 1
 )
+echo [4/5] Миграции применены успешно!
 echo.
 
 REM Создание директорий для медиа и статики
